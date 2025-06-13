@@ -1,14 +1,15 @@
 # Terminal Dashboard
 
-A sleek, terminal-inspired system dashboard that displays real-time information including local time, weather data, and simulated system statistics. Built with vanilla HTML, CSS, and JavaScript for easy deployment and customization.
+A sleek, terminal-inspired system dashboard that displays real-time information including local time, weather data, quick links to popular websites, and simulated system statistics. Built with vanilla HTML, CSS, and JavaScript for easy deployment and customization.
 
 ## Features
 
-- **Real-time Clock**: Displays current time for Kuala Lumpur timezone
-- **Live Weather**: Fetches current weather data using Open-Meteo API
+- **Real-time Clock**: Displays current time and date for Kuala Lumpur timezone
+- **Live Weather**: Fetches current weather data using wttr.in API
+- **Quick Links**: Grid of popular websites with Font Awesome icons
 - **System Monitor**: Simulated CPU, RAM, and storage usage with animated progress bars
 - **Terminal Aesthetic**: Dark theme with monospace fonts and blinking cursor
-- **Responsive Design**: Adapts to different screen sizes
+- **Responsive Design**: Adapts to different screen sizes with mobile-friendly layout
 - **No Dependencies**: Pure HTML/CSS/JavaScript - no frameworks required
 
 ## Quick Start
@@ -28,7 +29,10 @@ The dashboard is currently configured for **Kuala Lumpur, Malaysia**. To change 
 // In the updateTime() function, change the timeZone value:
 const options = {
     timeZone: "Asia/Kuala_Lumpur",  // Change this
-    // ... other options
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
 };
 ```
 
@@ -41,32 +45,72 @@ const options = {
 
 #### Weather Location
 ```javascript
-// Change these coordinates for your city:
-const kl_lat = 3.1412;   // Latitude
-const kl_lon = 101.6865; // Longitude
+// Change the city name in the weather API URL:
+const weatherApiUrl = `https://wttr.in/Kuala%20Lumpur?format=j1`;
+// Example: `https://wttr.in/New%20York?format=j1`
 ```
 
-**To find coordinates:**
-1. Search "[Your City] coordinates" in Google
-2. Or use [LatLong.net](https://www.latlong.net/)
-3. Replace the `kl_lat` and `kl_lon` values
+**Supported location formats:**
+- City names: `London`, `New York`, `Tokyo`
+- Airport codes: `LAX`, `JFK`, `LHR`
+- Coordinates: `~40.7128,-74.0060`
+
+### Quick Links Customization
+
+The dashboard includes 9 popular websites by default. To customize:
+
+```html
+<a href="https://your-website.com" target="_blank" class="link-button">
+    <i class="fa-brands fa-your-icon"></i>
+    <span>Your Site</span>
+</a>
+```
+
+**Available Font Awesome icon categories:**
+- `fa-brands` - Brand icons (YouTube, GitHub, etc.)
+- `fa-solid` - Solid icons (general purpose)
+- `fa-regular` - Regular/outline icons
+
+**Popular alternatives:**
+```html
+<!-- Netflix -->
+<i class="fa-brands fa-netflix"></i>
+
+<!-- Gmail -->
+<i class="fa-solid fa-envelope"></i>
+
+<!-- Stack Overflow -->
+<i class="fa-brands fa-stack-overflow"></i>
+
+<!-- LinkedIn -->
+<i class="fa-brands fa-linkedin"></i>
+
+<!-- Twitter/X -->
+<i class="fa-brands fa-x-twitter"></i>
+```
 
 ### System Statistics
 
-The system monitor shows simulated data for demonstration purposes. To customize:
+The system monitor shows a mix of real browser data and simulated statistics:
 
-#### RAM Configuration
+#### Real Browser Data Used:
+- **CPU Cores**: `navigator.hardwareConcurrency`
+- **RAM Total**: `navigator.deviceMemory` (Chrome/Edge only)
+
+#### Simulated Data:
+- CPU usage percentages
+- RAM usage amounts
+- Storage statistics
+
+#### Customization:
 ```javascript
-const totalRam = 16.0; // Change to match your system (in GB)
+// Fallback values when browser APIs aren't available
+const numCores = navigator.hardwareConcurrency || 4;     // Default 4 cores
+const totalRam = navigator.deviceMemory || 8;            // Default 8GB RAM
+const totalStorage = 256, usedStorage = 148.7;          // Storage simulation
 ```
 
-#### Storage Configuration
-```javascript
-const totalStorage = 512;  // Total storage in GB
-const usedStorage = 258.7; // Current usage in GB
-```
-
-#### Update Intervals
+#### Update Intervals:
 ```javascript
 setInterval(updateTime, 1000);        // Clock updates every 1 second
 setInterval(updateSystemStats, 2000); // Stats update every 2 seconds
@@ -85,6 +129,7 @@ The dashboard uses CSS custom properties for easy theming:
     --green: #9ece6a;             /* Success/CPU color */
     --yellow: #e0af68;            /* Warning/RAM color */
     --red: #f7768e;               /* Error/Storage color */
+    --cyan: #7dcfff;              /* Icon highlight color */
     --gray: #414868;              /* Border/inactive color */
 }
 ```
@@ -100,12 +145,34 @@ The dashboard uses CSS custom properties for easy theming:
 - `"Roboto Mono"`
 - `"Ubuntu Mono"`
 
+#### Link Button Styling
+```css
+.link-button:hover {
+    background-color: var(--accent-color);  /* Hover background */
+    color: var(--background-color);         /* Hover text color */
+}
+```
+
+## Dependencies
+
+### External Resources
+- **Font Awesome 6.5.1**: Icons for UI elements and quick links
+- **wttr.in API**: Weather data service (no API key required)
+
+### Browser APIs Used
+- `navigator.hardwareConcurrency` - CPU core count
+- `navigator.deviceMemory` - RAM amount (Chrome/Edge only)
+- `fetch()` - Weather data requests
+- `Intl.DateTimeFormat` - Timezone formatting
+
 ## Browser Compatibility
 
 - ✅ Chrome 60+
 - ✅ Firefox 55+
 - ✅ Safari 12+
 - ✅ Edge 79+
+
+**Note**: Some system information APIs are Chrome/Edge exclusive. Fallback values are provided for other browsers.
 
 ## Deployment Options
 
@@ -127,22 +194,20 @@ To set as your browser's homepage:
 2. **Firefox**: Settings → Home → Homepage → Custom URL
 3. **Safari**: Preferences → General → Homepage → Set file path
 
-## API Usage
-
-### Weather API
-The dashboard uses the free [Open-Meteo API](https://open-meteo.com/):
-- **No API key required**
-- **Rate limit**: 10,000 requests/day
-- **CORS enabled** for browser requests
-
-If you need more features, consider upgrading to their commercial API or switching to:
-- OpenWeatherMap (requires API key)
-- WeatherAPI (requires API key)
-
 ## Performance Notes
 
 ### System Statistics Limitation
-**Important**: Browser JavaScript cannot access real system hardware information due to security restrictions. The CPU, RAM, and storage data shown are simulated for demonstration purposes.
+**Important**: Browser JavaScript has limited access to real system hardware information due to security restrictions. The dashboard uses available browser APIs where possible and simulates the rest for demonstration purposes.
+
+**What's Real:**
+- CPU core count (when supported)
+- Total RAM amount (Chrome/Edge only)
+- Current time and date
+
+**What's Simulated:**
+- CPU usage percentages
+- RAM usage amounts
+- Storage usage statistics
 
 For real system monitoring, consider:
 - Desktop applications (Electron-based)
@@ -151,41 +216,69 @@ For real system monitoring, consider:
 
 ### Network Requests
 - Weather data is fetched once on page load
+- Font Awesome icons are loaded from CDN
 - No continuous API polling to respect rate limits
-- Failed requests fallback to error messages
+- Failed requests fallback to error messages with warning icons
 
 ## Troubleshooting
 
 ### Weather Not Loading
 - **Check internet connection**
-- **Verify coordinates** are correct decimal values
+- **Verify city name** in the API URL is correct
 - **CORS errors**: Some browsers block API requests from `file://` URLs - try serving via HTTP
+- **API service down**: wttr.in occasionally experiences outages
+
+### Icons Not Displaying
+- **Font Awesome CDN**: Check if https://cdnjs.cloudflare.com is accessible
+- **Ad blockers**: Some may block CDN resources
+- **Offline usage**: Icons require internet connection
 
 ### Time Display Issues
 - **Wrong timezone**: Double-check the `timeZone` value
 - **Format problems**: Ensure your browser supports `Intl.DateTimeFormat`
+- **Date format**: Currently uses DD/MM/YYYY (British) format
 
 ### Styling Problems
 - **Font not loading**: Fira Code requires internet connection or local installation
 - **Layout issues**: Try clearing browser cache and refreshing
+- **Mobile layout**: Grid automatically adjusts on screens under 600px width
+
+### System Stats Not Updating
+- **JavaScript errors**: Check browser console (F12) for errors
+- **API limitations**: Some browsers don't support hardware detection APIs
+- **Fallback values**: Default values are used when real data isn't available
 
 ## Customization Ideas
 
 ### Additional Widgets
 ```javascript
-// Add network speed monitor
-// Add system uptime counter
-// Add cryptocurrency prices
-// Add stock market data
-// Add calendar events
+// Potential additions:
+// - Multiple timezone clocks
+// - Cryptocurrency prices
+// - Stock market data
+// - RSS feed reader
+// - Calendar events
+// - System uptime counter
+// - Network speed test
+// - To-do list
+// - Notes section
 ```
 
 ### Enhanced Features
-- Multiple timezone clocks
-- Weather forecast (not just current)
-- Real system stats via backend API
-- Keyboard shortcuts for interactions
-- Auto-refresh intervals configuration
+- Keyboard shortcuts for quick link access
+- Customizable refresh intervals
+- Local storage for user preferences
+- Dark/light theme toggle
+- Weather forecast (multi-day)
+- Real-time notifications
+- Widget drag-and-drop positioning
+
+### Link Categories
+Consider organizing links into categories:
+- **Work**: Gmail, Calendar, Slack, Teams
+- **Entertainment**: YouTube, Netflix, Spotify, Twitch
+- **Social**: Discord, Reddit, Twitter, Instagram
+- **Development**: GitHub, Stack Overflow, MDN, CodePen
 
 ## Contributing
 
