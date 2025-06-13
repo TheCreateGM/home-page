@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Home Page</title>
+        <style>
+            /* --- General Styling & Terminal Look --- */
+            :root {
+                --background-color: #1a1b26;
+                --foreground-color: #a9b1d6;
+                --accent-color: #7aa2f7;
+                --green: #9ece6a;
+                --yellow: #e0af68;
+                --red: #f7768e;
+                --gray: #414868;
+                --font: "Fira Code", "Courier New", "monospace";
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                background-color: var(--background-color);
+                color: var(--foreground-color);
+                font-family: var(--font);
+                margin: 0;
+                padding: 1.5rem;
+                min-height: 100vh;
+                font-size: 16px;
+            }
+
+            .container {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            /* --- Blinking Cursor --- */
+            .cursor {
+                display: inline-block;
+                width: 10px;
+                height: 1.2em;
+                background-color: var(--foreground-color);
+                animation: blink 1s steps(1) infinite;
+                vertical-align: middle;
+            }
+
+            @keyframes blink {
+                50% {
+                    background-color: transparent;
+                }
+            }
+
+            /* --- Header: Time & Weather --- */
+            .header {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 1rem;
+                border: 1px solid var(--gray);
+                padding: 1rem;
+            }
+
+            #time-widget,
+            #weather-widget {
+                flex: 1 1 300px;
+            }
+
+            #time-widget .label,
+            #weather-widget .label {
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+
+            /* --- System Analysis (btop style) --- */
+            .system-analysis {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-box {
+                border: 1px solid var(--gray);
+                padding: 1rem;
+            }
+
+            .stat-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+            }
+
+            .stat-header .title {
+                color: var(--accent-color);
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 20px;
+                background-color: var(--gray);
+                border: 1px solid var(--foreground-color);
+            }
+
+            .progress-bar-inner {
+                height: 100%;
+                width: 0%; /* Will be set by JavaScript */
+                transition: width 0.5s ease-out;
+            }
+
+            /* Color variations for progress bars */
+            #cpu-progress .progress-bar-inner {
+                background-color: var(--green);
+            }
+            #ram-progress .progress-bar-inner {
+                background-color: var(--yellow);
+            }
+            #storage-progress .progress-bar-inner {
+                background-color: var(--red);
+            }
+
+            /* --- Prompt line at the bottom --- */
+            .prompt {
+                margin-top: 1rem;
+                color: var(--green);
+            }
+            .prompt span {
+                color: var(--foreground-color);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header: Time & Weather for Kuala Lumpur -->
+            <div class="header">
+                <div id="time-widget">
+                    <span class="label">Time (KUL):</span>
+                    <span id="time-display">Loading...</span>
+                </div>
+                <div id="weather-widget">
+                    <span class="label">Weather (KUL):</span>
+                    <span id="weather-display">Fetching...</span>
+                </div>
+            </div>
+
+            <!-- System Analysis (Simulated) -->
+            <div class="system-analysis">
+                <!-- CPU Box -->
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <span class="title">CPU Usage</span>
+                        <span id="cpu-text">0%</span>
+                    </div>
+                    <div class="progress-bar" id="cpu-progress">
+                        <div class="progress-bar-inner"></div>
+                    </div>
+                </div>
+
+                <!-- RAM Box -->
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <span class="title">Memory (RAM)</span>
+                        <span id="ram-text">0.0 / 16.0 GB</span>
+                    </div>
+                    <div class="progress-bar" id="ram-progress">
+                        <div class="progress-bar-inner"></div>
+                    </div>
+                </div>
+
+                <!-- Storage Box -->
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <span class="title">Disk [/]</span>
+                        <span id="storage-text">0 / 0 GB</span>
+                    </div>
+                    <div class="progress-bar" id="storage-progress">
+                        <div class="progress-bar-inner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt at the end for terminal look -->
+            <div class="prompt">
+                user@dashboard:~$
+                <span>Status check complete. Watching for changes.</span
+                ><span class="cursor"></span>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                // --- 1. Time Widget for Kuala Lumpur ---
+                const timeElement = document.getElementById("time-display");
+
+                function updateTime() {
+                    const now = new Date();
+                    const options = {
+                        timeZone: "Asia/Kuala_Lumpur",
+                        weekday: "short",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false,
+                    };
+                    timeElement.textContent = now.toLocaleString(
+                        "en-US",
+                        options,
+                    );
+                }
+                setInterval(updateTime, 1000);
+                updateTime(); // Initial call
+
+                // --- 2. Weather Widget for Kuala Lumpur ---
+                const weatherElement =
+                    document.getElementById("weather-display");
+                const kl_lat = 3.1412;
+                const kl_lon = 101.6865;
+                const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${kl_lat}&longitude=${kl_lon}&current_weather=true`;
+
+                fetch(weatherApiUrl)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const temp = data.current_weather.temperature;
+                        const wind = data.current_weather.windspeed;
+                        weatherElement.textContent = `${temp}°C, Wind: ${wind} km/h`;
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching weather:", error);
+                        weatherElement.textContent =
+                            "Could not fetch weather data.";
+                    });
+
+                // --- 3. System Analysis Simulation ---
+                // IMPORTANT: Browser JavaScript cannot access real hardware info for security reasons.
+                // This is a simulation using random numbers to mimic a real resource monitor.
+
+                const cpuText = document.getElementById("cpu-text");
+                const cpuProgress = document.querySelector(
+                    "#cpu-progress .progress-bar-inner",
+                );
+
+                const ramText = document.getElementById("ram-text");
+                const ramProgress = document.querySelector(
+                    "#ram-progress .progress-bar-inner",
+                );
+                const totalRam = 16.0; // Simulate 16GB total RAM
+
+                const storageText = document.getElementById("storage-text");
+                const storageProgress = document.querySelector(
+                    "#storage-progress .progress-bar-inner",
+                );
+                const totalStorage = 512; // Simulate 512GB total storage
+                const usedStorage = 258.7; // Simulate a fixed used amount
+
+                function updateSystemStats() {
+                    // CPU Simulation
+                    let cpuUsage = (
+                        Math.random() * 35 +
+                        5 +
+                        Math.sin(Date.now() / 5000) * 15
+                    ).toFixed(1);
+                    cpuUsage = Math.max(0, Math.min(100, cpuUsage)); // Clamp between 0 and 100
+                    cpuText.textContent = `${cpuUsage}%`;
+                    cpuProgress.style.width = `${cpuUsage}%`;
+
+                    // RAM Simulation
+                    let ramUsage = (
+                        Math.random() * 2 +
+                        5.5 +
+                        Math.cos(Date.now() / 8000) * 2
+                    ).toFixed(1);
+                    ramUsage = Math.max(0, Math.min(totalRam, ramUsage));
+                    const ramPercent = (ramUsage / totalRam) * 100;
+                    ramText.textContent = `${ramUsage} / ${totalRam.toFixed(1)} GB`;
+                    ramProgress.style.width = `${ramPercent}%`;
+
+                    // Storage Simulation (mostly static)
+                    const storagePercent = (usedStorage / totalStorage) * 100;
+                    storageText.textContent = `${usedStorage.toFixed(1)} / ${totalStorage} GB used`;
+                    storageProgress.style.width = `${storagePercent}%`;
+                }
+
+                setInterval(updateSystemStats, 2000); // Update stats every 2 seconds
+                updateSystemStats(); // Initial call
+            });
+        </script>
+    </body>
+</html>
