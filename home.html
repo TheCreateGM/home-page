@@ -4,7 +4,16 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Terminal Home Page</title>
-        <!-- Font Awesome CDN for icons -->
+
+        <!-- Google Fonts CDN for Fira Code -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- cdnjs for Font Awesome Icons -->
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -12,8 +21,8 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
+
         <style>
-            /* --- General Styling & Terminal Look --- */
             :root {
                 --background-color: #1a1b26;
                 --foreground-color: #a9b1d6;
@@ -25,11 +34,9 @@
                 --gray: #414868;
                 --font: "Fira Code", "Courier New", "monospace";
             }
-
             * {
                 box-sizing: border-box;
             }
-
             body {
                 background-color: var(--background-color);
                 color: var(--foreground-color);
@@ -39,7 +46,6 @@
                 min-height: 100vh;
                 font-size: 16px;
             }
-
             .container {
                 display: flex;
                 flex-direction: column;
@@ -47,13 +53,10 @@
                 max-width: 1200px;
                 margin: 0 auto;
             }
-
             .widget-box {
                 border: 1px solid var(--gray);
                 padding: 1rem;
             }
-
-            /* --- Blinking Cursor --- */
             .cursor {
                 display: inline-block;
                 width: 10px;
@@ -68,13 +71,10 @@
                     background-color: transparent;
                 }
             }
-
             .label {
                 color: var(--accent-color);
                 font-weight: bold;
             }
-
-            /* --- Title Icons --- */
             .label i,
             .stat-header .title i {
                 color: var(--cyan);
@@ -82,8 +82,6 @@
                 min-width: 20px;
                 text-align: center;
             }
-
-            /* --- Header: Time & Weather --- */
             .header {
                 display: flex;
                 flex-wrap: wrap;
@@ -94,14 +92,11 @@
             #weather-widget {
                 flex: 1 1 320px;
             }
-
-            /* --- Quick Links Grid --- */
             .link-grid {
                 display: grid;
                 gap: 1rem;
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
-
             .link-button {
                 display: flex;
                 flex-direction: column;
@@ -127,8 +122,6 @@
             .link-button span {
                 font-size: 0.9rem;
             }
-
-            /* --- System Analysis --- */
             .system-analysis {
                 display: flex;
                 flex-direction: column;
@@ -163,8 +156,6 @@
             #storage-progress .progress-bar-inner {
                 background-color: var(--red);
             }
-
-            /* --- Prompt --- */
             .prompt {
                 margin-top: 1rem;
                 color: var(--green);
@@ -172,7 +163,12 @@
             .prompt span {
                 color: var(--foreground-color);
             }
-
+            @media (max-width: 700px) {
+                #time-widget,
+                #weather-widget {
+                    flex: 1 1 100%;
+                }
+            }
             @media (max-width: 600px) {
                 body {
                     padding: 0.5rem;
@@ -208,7 +204,7 @@
                 </div>
             </div>
 
-            <!-- Quick Links (Themed Icons) -->
+            <!-- Quick Links -->
             <div class="quick-links widget-box">
                 <div class="link-grid">
                     <a
@@ -287,8 +283,7 @@
                                 >?</span
                             >
                             cores)</span
-                        >
-                        <span id="cpu-text">0%</span>
+                        ><span id="cpu-text">0%</span>
                     </div>
                     <div class="progress-bar" id="cpu-progress">
                         <div class="progress-bar-inner"></div>
@@ -299,8 +294,7 @@
                         <span class="title"
                             ><i class="fa-solid fa-memory"></i>Memory
                             (RAM)</span
-                        >
-                        <span id="ram-text">0.0 / 0.0 GB</span>
+                        ><span id="ram-text">0.0 / 0.0 GB</span>
                     </div>
                     <div class="progress-bar" id="ram-progress">
                         <div class="progress-bar-inner"></div>
@@ -311,8 +305,7 @@
                         <span class="title"
                             ><i class="fa-solid fa-hard-drive"></i>Disk [/]
                             (simulated)</span
-                        >
-                        <span id="storage-text">0 / 0 GB</span>
+                        ><span id="storage-text">0 / 0 GB</span>
                     </div>
                     <div class="progress-bar" id="storage-progress">
                         <div class="progress-bar-inner"></div>
@@ -329,9 +322,8 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-                // --- 1. Time Widget ---
-                const timeElement = document.getElementById("time-display");
                 function updateTime() {
+                    const timeElement = document.getElementById("time-display");
                     const now = new Date();
                     const options = {
                         timeZone: "Asia/Kuala_Lumpur",
@@ -345,72 +337,127 @@
                 setInterval(updateTime, 1000);
                 updateTime();
 
-                // --- 2. Weather Widget ---
-                const weatherElement =
-                    document.getElementById("weather-display");
-                const weatherApiUrl = `https://wttr.in/Kuala%20Lumpur?format=j1`;
+                // --- BULLETPROOF Weather Widget with Fallback Data ---
+                function getWeather() {
+                    const weatherElement =
+                        document.getElementById("weather-display");
 
-                fetch(weatherApiUrl)
-                    .then((response) => {
-                        if (!response.ok)
-                            throw new Error(
-                                `HTTP error! status: ${response.status}`,
+                    // Fallback data in case the API call fails or is blocked
+                    const fallbackWeather = {
+                        temperature: 28.5,
+                        windSpeed: 10.2,
+                        description: "Partly cloudy (fallback)",
+                    };
+
+                    function displayWeather(data) {
+                        weatherElement.textContent = `${data.temperature}°C, ${data.windSpeed.toFixed(1)} km/h - ${data.description}`;
+                    }
+
+                    const lat = 3.1412,
+                        lon = 101.6865;
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}¤t_weather=true`;
+
+                    fetch(url)
+                        .then((response) => {
+                            if (!response.ok)
+                                throw new Error(
+                                    `HTTP status ${response.status}`,
+                                );
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.current_weather) {
+                                const liveWeather = {
+                                    temperature:
+                                        data.current_weather.temperature,
+                                    windSpeed: data.current_weather.windspeed,
+                                    description: getWeatherDescription(
+                                        data.current_weather.weathercode,
+                                    ),
+                                };
+                                displayWeather(liveWeather);
+                            } else {
+                                // API response format was unexpected, use fallback
+                                displayWeather(fallbackWeather);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(
+                                "Weather fetch failed, using fallback. Error:",
+                                error,
                             );
-                        return response.json();
-                    })
-                    .then((data) => {
-                        const currentCondition = data.current_condition[0];
-                        const temp = currentCondition.temp_C;
-                        const wind = currentCondition.windspeedKmph;
-                        const desc = currentCondition.weatherDesc[0].value;
-                        weatherElement.textContent = `${temp}°C, ${wind} km/h - ${desc}`;
-                    })
-                    .catch((error) => {
-                        console.error("Weather fetch failed:", error);
-                        weatherElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--red);"></i> Weather unavailable`;
-                    });
+                            // This CATCH block is key. It runs if the fetch fails (e.g., blocked by extension)
+                            displayWeather(fallbackWeather);
+                        });
+                }
 
-                // --- 3. System Analysis ---
-                const cpuCoresElement = document.getElementById("cpu-cores");
-                const cpuText = document.getElementById("cpu-text");
-                const cpuProgress = document.querySelector(
-                    "#cpu-progress .progress-bar-inner",
-                );
-                const ramText = document.getElementById("ram-text");
-                const ramProgress = document.querySelector(
-                    "#ram-progress .progress-bar-inner",
-                );
-                const storageText = document.getElementById("storage-text");
-                const storageProgress = document.querySelector(
-                    "#storage-progress .progress-bar-inner",
-                );
+                function getWeatherDescription(code) {
+                    const descriptions = {
+                        0: "Clear sky",
+                        1: "Mainly clear",
+                        2: "Partly cloudy",
+                        3: "Overcast",
+                        45: "Fog",
+                        48: "Rime fog",
+                        51: "Light drizzle",
+                        53: "Moderate drizzle",
+                        55: "Dense drizzle",
+                        61: "Slight rain",
+                        63: "Moderate rain",
+                        65: "Heavy rain",
+                        80: "Slight showers",
+                        81: "Moderate showers",
+                        82: "Violent showers",
+                        95: "Thunderstorm",
+                    };
+                    return descriptions[code] || `Condition ${code}`;
+                }
+                getWeather();
 
+                // --- System Analysis ---
                 const numCores = navigator.hardwareConcurrency || 4;
                 const totalRam = navigator.deviceMemory || 8;
                 const totalStorage = 256,
                     usedStorage = 148.7;
-
-                cpuCoresElement.textContent = numCores;
+                document.getElementById("cpu-cores").textContent = numCores;
 
                 function updateSystemStats() {
-                    let cpuUsage = (
-                        Math.random() * 15 +
-                        Math.sin(Date.now() / 2000) * 20 +
-                        25
+                    const cpuText = document.getElementById("cpu-text");
+                    const cpuProgress = document.querySelector(
+                        "#cpu-progress .progress-bar-inner",
+                    );
+                    let cpuUsage = Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Math.random() * 15 +
+                                Math.sin(Date.now() / 2000) * 20 +
+                                25,
+                        ),
                     ).toFixed(1);
-                    cpuUsage = Math.max(0, Math.min(100, cpuUsage));
                     cpuText.textContent = `${cpuUsage}%`;
                     cpuProgress.style.width = `${cpuUsage}%`;
 
-                    let ramUsage = (
-                        Math.random() * (totalRam * 0.1) +
-                        totalRam * 0.4 +
-                        Math.cos(Date.now() / 3000) * (totalRam * 0.1)
+                    const ramText = document.getElementById("ram-text");
+                    const ramProgress = document.querySelector(
+                        "#ram-progress .progress-bar-inner",
+                    );
+                    let ramUsage = Math.max(
+                        0,
+                        Math.min(
+                            totalRam,
+                            Math.random() * (totalRam * 0.1) +
+                                totalRam * 0.4 +
+                                Math.cos(Date.now() / 3000) * (totalRam * 0.1),
+                        ),
                     ).toFixed(1);
-                    ramUsage = Math.max(0, Math.min(totalRam, ramUsage));
                     ramText.textContent = `${ramUsage} / ${totalRam.toFixed(1)} GB`;
                     ramProgress.style.width = `${(ramUsage / totalRam) * 100}%`;
 
+                    const storageText = document.getElementById("storage-text");
+                    const storageProgress = document.querySelector(
+                        "#storage-progress .progress-bar-inner",
+                    );
                     storageText.textContent = `${usedStorage.toFixed(1)} / ${totalStorage} GB used`;
                     storageProgress.style.width = `${(usedStorage / totalStorage) * 100}%`;
                 }
