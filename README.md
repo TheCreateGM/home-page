@@ -1,27 +1,64 @@
-# Terminal Dashboard
+# Terminal Dashboard with Media Controller Extension
 
-A modern, terminal-inspired system dashboard that displays real-time information including local time, weather data, quick links to popular websites, system statistics, and network speed testing. Built with vanilla HTML, CSS, and JavaScript for easy deployment and customization.
+A modern, terminal-inspired system dashboard that displays real-time information including local time, weather data, quick links to popular websites, system statistics, network speed testing, and a fully-featured media controller. Built with vanilla HTML, CSS, and JavaScript for easy deployment and customization.
 
 ![Terminal Dashboard](https://img.shields.io/badge/Status-Active-brightgreen) ![License](https://img.shields.io/badge/License-Open_Source-blue) ![Responsive](https://img.shields.io/badge/Responsive-Yes-success)
 
-## ✨ Features
+## 📌 Project Components
+
+This project consists of two main components:
+
+1. **Terminal Dashboard**: A browser-based dashboard with real-time widgets and system monitoring
+2. **Media Controller Extension**: A Chrome/Edge extension for controlling media playback across browser tabs
+
+## ✨ Dashboard Features
 
 - **🕐 Real-time Clock**: Displays current time and date for Kuala Lumpur timezone
 - **🌤️ Live Weather**: Fetches current weather data using Open-Meteo API with intelligent fallback
 - **🔗 Quick Links**: Customizable grid of 9 popular websites with Font Awesome icons
 - **📊 System Monitor**: Real-time CPU, RAM, and storage usage with animated progress bars
 - **🌐 Network Speed Test**: Built-in internet speed testing with ping, jitter, download/upload speeds
+- **🎵 Media Player**: Integrated media controller with support for cross-tab playback controls
 - **🎨 Terminal Aesthetic**: Dark theme with Fira Code monospace font and authentic blinking cursor
 - **📱 Responsive Design**: Adapts seamlessly to different screen sizes and mobile devices
 - **🛠️ No Dependencies**: Pure HTML/CSS/JavaScript - no frameworks or build tools required
 - **🔄 Bulletproof Weather**: Automatic fallback to simulated data if API fails or is blocked
 - **⚡ Performance Optimized**: Efficient updates and minimal resource usage
 
+## 🎮 Media Controller Extension Features
+
+- **🔍 Real-time Media Detection**: Automatically detects audio and video playback across all browser tabs
+- **🌐 Universal Control**: Control media from any tab through the dashboard or extension popup
+- **🎧 Multi-Platform Support**: Works with YouTube, Spotify, SoundCloud, Bandcamp, Twitch, Netflix, and more
+- **🔄 Cross-Tab Control**: Pause music in one tab and control it from another
+- **⚡ Live Updates**: Real-time synchronization between the dashboard and playing media
+- **⌨️ System Integration**: Uses Media Session API for system-level media controls
+
 ## 🚀 Quick Start
+
+### Dashboard Setup
 
 1. **Download**: Save the `home.html` file to your local machine
 2. **Open**: Double-click the file or open it in any modern web browser
 3. **Enjoy**: The dashboard loads automatically with live data and interactive features
+
+### Extension Installation
+
+1. **Open Chrome/Edge Extension Management**:
+   - Chrome: Go to `chrome://extensions/`
+   - Edge: Go to `edge://extensions/`
+
+2. **Enable Developer Mode**:
+   - Toggle the "Developer mode" switch in the top-right corner
+
+3. **Load the Extension**:
+   - Click "Load unpacked"
+   - Navigate to the `media-controller-extension` folder
+   - Select the folder and click "Open"
+
+4. **Verify Installation**:
+   - The extension should appear in your extensions list
+   - Look for the music note icon in your browser toolbar
 
 ## 📍 Location Configuration
 
@@ -103,17 +140,42 @@ The dashboard includes 9 popular websites by default:
 <i class="fa-brands fa-twitch"></i>          <!-- Twitch -->
 <i class="fa-brands fa-steam"></i>           <!-- Steam -->
 <i class="fa-brands fa-tiktok"></i>          <!-- TikTok -->
-
-<!-- Shopping -->
-<i class="fa-brands fa-amazon"></i>          <!-- Amazon -->
-<i class="fa-brands fa-ebay"></i>            <!-- eBay -->
-<i class="fa-solid fa-shopping-cart"></i>    <!-- Shopping -->
-
-<!-- News -->
-<i class="fa-solid fa-newspaper"></i>        <!-- News -->
-<i class="fa-brands fa-reddit"></i>          <!-- Reddit -->
-<i class="fa-brands fa-medium"></i>          <!-- Medium -->
 ```
+
+## 🎵 Media Controller Integration
+
+### Supported Media Platforms
+
+#### Streaming Services
+- **YouTube** / YouTube Music
+- **Spotify** Web Player
+- **SoundCloud**
+- **Bandcamp**
+- **Apple Music** (web)
+- **Twitch**
+- **Vimeo**
+
+#### Video Platforms
+- **Netflix**
+- **Hulu**
+- **Amazon Prime Video**
+- Any website with HTML5 audio/video elements
+
+### Using Media Controls
+
+1. **Install Extension**: Follow the extension installation steps
+2. **Play Media**: Start media playback in any browser tab
+3. **Control from Dashboard**: Use the media player widget on the dashboard
+4. **Alternative Control**: Click the extension icon for a popup controller
+
+### How It Works
+
+The media controller uses a combination of:
+
+- **Content Scripts**: Detect media elements across all tabs
+- **Background Service Worker**: Manage cross-tab communication
+- **Media Session API**: Enable system-level media controls
+- **Dashboard Integration**: Display and control currently playing media
 
 ## 🔧 System Statistics
 
@@ -288,12 +350,14 @@ const fallbackWeather = {
 | Browser | Minimum Version | Status |
 |---------|----------------|--------|
 | Chrome | 60+ | ✅ Full support |
-| Firefox | 55+ | ✅ Full support |
-| Safari | 12+ | ✅ Full support |
+| Firefox | 55+ | ✅ Full support (no Media Controller) |
+| Safari | 12+ | ✅ Full support (no Media Controller) |
 | Edge | 79+ | ✅ Full support |
 | Opera | 47+ | ✅ Full support |
 
-**Note:** Some hardware APIs (like `navigator.deviceMemory`) are Chrome/Edge exclusive. The dashboard provides fallback values for unsupported browsers.
+**Note:**
+- Some hardware APIs (like `navigator.deviceMemory`) are Chrome/Edge exclusive. The dashboard provides fallback values for unsupported browsers.
+- The Media Controller Extension only works with Chromium-based browsers (Chrome, Edge, Opera).
 
 ## 🚀 Deployment Options
 
@@ -310,7 +374,7 @@ double-click home.html
 # GitHub Pages
 1. Upload to GitHub repository
 2. Enable Pages in Settings
-3. Access via https://username.github.io/repo-name
+3. Access via https://github.com/TheCreateGM/home-page
 
 # Netlify
 1. Drag and drop file to netlify.com
@@ -355,6 +419,29 @@ setInterval(updateSystemStats, 10000); // Update every 10 seconds
 }
 ```
 
+## 🔧 Extension Development
+
+### File Structure
+```
+media-controller-extension/
+├── manifest.json          # Extension configuration
+├── background.js          # Service worker for cross-tab communication
+├── content.js             # Content script for media detection
+├── popup.html             # Extension popup interface
+├── popup.js               # Popup functionality
+└── README.md              # Extension documentation
+```
+
+### Permissions Explained
+
+The extension requests the following permissions:
+
+- **`activeTab`**: Access current tab for media detection
+- **`tabs`**: Query and manage tabs for cross-tab control
+- **`scripting`**: Inject content scripts for media detection
+- **`storage`**: Store extension settings and preferences
+- **`host_permissions`**: Access streaming platforms for media control
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -380,6 +467,12 @@ setInterval(updateSystemStats, 10000); // Update every 10 seconds
 - CORS restrictions in some browsers
 - Try running from a web server instead of local file
 
+**Media controls not working:**
+- Ensure the extension is properly installed
+- Some sites may block programmatic control
+- Refresh both the media tab and dashboard
+- Check browser console for error messages
+
 ## 💡 Customization Ideas
 
 ### Additional Features
@@ -392,23 +485,13 @@ setInterval(updateSystemStats, 10000); // Update every 10 seconds
 - 📝 Quick notes widget
 - 📊 Data usage tracker
 - 🔍 Multi-search engine bar
-- 🎵 Music player controls
 
-### Layout Enhancements
-- Drag-and-drop widget positioning
-- Collapsible sections
-- Full-screen mode toggle
-- Widget resize functionality
-- Multiple dashboard pages
-- Customizable grid layouts
-
-### Interaction Improvements
-- Keyboard shortcuts (Alt+1, Alt+2, etc.)
-- Search functionality
-- Settings panel
-- Export/import configuration
-- Theme switcher
-- Voice commands
+### Extension Enhancements
+- 🔌 Support for Firefox (requires WebExtensions API adaptation)
+- 🖌️ Custom theme options for extension popup
+- 🔔 Notification controls
+- 🎲 Random playlist generation
+- 🔊 Equalizer controls
 
 ## 📚 Technical Details
 
@@ -416,14 +499,19 @@ setInterval(updateSystemStats, 10000); // Update every 10 seconds
 - **Font Awesome 6.5.1**: UI icons
 - **Google Fonts**: Fira Code font
 - **Open-Meteo API**: Weather data
-- **Browser APIs**: Hardware info, geolocation, fetch
+- **Browser APIs**: Hardware info, geolocation, fetch, Media Session API
 
 ### File Structure
 ```
-terminal-dashboard/
-├── home.html          # Main dashboard file
-├── README.md          # This documentation
-└── assets/            # Optional: Custom icons/images
+project/
+├── home.html                      # Main dashboard file
+├── README.md                      # This documentation
+└── media-controller-extension/    # Browser extension
+    ├── manifest.json              # Extension configuration
+    ├── background.js              # Background service worker
+    ├── content.js                 # Content script
+    ├── popup.html                 # Extension popup interface
+    └── popup.js                   # Popup functionality
 ```
 
 ### Security Considerations
@@ -432,6 +520,7 @@ terminal-dashboard/
 - ✅ External links open in new tabs
 - ✅ No data collection or tracking
 - ✅ Client-side only processing
+- ✅ Minimal extension permissions
 
 ## 📄 License
 
@@ -469,4 +558,4 @@ Contributions are welcome! Here's how to get started:
 
 ---
 
-*Last updated: June 2025*
+*Last updated: June 2025
